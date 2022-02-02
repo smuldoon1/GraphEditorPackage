@@ -7,6 +7,7 @@ public class GraphEditor : EditorWindow
 {
     static Graph graph;
 
+    // Adds the graph editor to the window menu and allows it to be opened
     [MenuItem("Window/Graph Editor")]
     public static void ShowWindow()
     {
@@ -14,6 +15,7 @@ public class GraphEditor : EditorWindow
         graph = new Graph();
     }
 
+    // Called every frame that the editor window is in focus
     private void OnGUI()
     {
         if (graph == null)
