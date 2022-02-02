@@ -40,7 +40,7 @@ public class Graph
     {
         for (int i = NodeCount - 1; i >= 0; i--)
         {
-            nodes[i].DrawNode();
+            nodes[i].Draw();
         }
     }
 
