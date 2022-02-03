@@ -5,9 +5,23 @@ using UnityEditor;
 
 public class GraphNodeConnector
 {
-    // Draw the connector relative to the graph node
-    public void Draw(Vector2 position)
+    Rect rect;
+    protected Color color;
+
+    public GraphNodeConnector()
     {
-        EditorGUI.DrawRect(new Rect(position.x - 5f, position.y - 5f, 10f, 10f), Color.white);
+        color = Color.white;
+    }
+
+    public Rect Rect
+    {
+        get { return rect; }
+        set { rect = value; }
+    }
+
+    // Draw the connector relative to the graph node
+    public void Draw()
+    {
+        GUI.DrawTexture(Rect, AssetDatabase.LoadAssetAtPath<Texture>("Assets/nodeConnector.png"), ScaleMode.StretchToFill, true, 0, color, 0, 0);
     }
 }

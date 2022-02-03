@@ -9,17 +9,11 @@ public class Graph
     GraphNode hoveringNode; // Node currently being dragged
     Vector2 relativeDragPosition; // Relative mouse position of the rect of the last dragged node
 
+    OutputConnector selectedConnector;
+
     public Graph()
     {
         nodes = new List<GraphNode>();
-
-        if (NodeCount == 0)
-        {
-            CreateNode(100, 100, 100, 100);
-            CreateNode(100, 300, 100, 100);
-            CreateNode(300, 100, 100, 100);
-            CreateNode(300, 300, 100, 100);
-        }
     }
 
     // Get the total number of nodes in the graph
@@ -27,11 +21,11 @@ public class Graph
     {
         get { return nodes.Count; }
     }
-    
+
     // Create a new node in the graph
-    public void CreateNode(float x, float y, float width, float height)
+    public void CreateNode(float x, float y, float width, float height, int inputCount = 1, int outputCount = 1)
     {
-        GraphNode newNode = new GraphNode(new Rect(x, y, width, height));
+        GraphNode newNode = new TestNode(new Rect(x, y, width, height), inputCount, outputCount);
         nodes.Insert(0, newNode); // New nodes are brought to the front of the list
     }
 
@@ -52,15 +46,46 @@ public class Graph
         {
             for (int i = 0; i < NodeCount; i++)
             {
+                for (int j = 0; j < nodes[i].outputConnectors.Count; j++)
+                {
+                    if (nodes[i].outputConnectors[j].Rect.Contains(Event.current.mousePosition) && selectedConnector == null)
+                    {
+                        selectedConnector = nodes[i].outputConnectors[j];
+                        selectedConnector.Selected = true;
+                        BringNodeForward(nodes[i]);
+                        Event.current.Use();
+                        return;
+                    }
+                }
+                for (int j = 0; j < nodes[i].inputConnectors.Count; j++)
+                {
+                    if (nodes[i].inputConnectors[j].Rect.Contains(Event.current.mousePosition) && selectedConnector != null)
+                    {
+                        selectedConnector.Selected = false;
+                        selectedConnector.connection = nodes[i].inputConnectors[j];
+                        selectedConnector = null;
+                        BringNodeForward(nodes[i]);
+                        Event.current.Use();
+                        return;
+                    }
+                }
+            }
+            for (int i = 0; i < NodeCount; i++)
+            {
+                if (selectedConnector != null)
+                {
+                    selectedConnector.Selected = false;
+                    selectedConnector = null;
+                    Event.current.Use();
+                    return;
+                }
                 if (nodes[i].Rect.Contains(Event.current.mousePosition))
                 {
-                    GraphNode node = nodes[i];
-                    hoveringNode = node;
-                    relativeDragPosition = Event.current.mousePosition - node.Rect.position; // Calculate the relative position on the rect that was clicked
-                    nodes.RemoveAt(i);
-                    nodes.Insert(0, node); // Removes and reinserts the node at the front of the list
+                    hoveringNode = nodes[i];
+                    relativeDragPosition = Event.current.mousePosition - nodes[i].Rect.position; // Calculate the relative position on the rect that was clicked
+                    BringNodeForward(nodes[i]); // Removes and reinserts the node at the front of the list
                     Event.current.Use();
-                    break;
+                    return;
                 }
             }
         }
@@ -78,6 +103,7 @@ public class Graph
             if (Event.current.modifiers == EventModifiers.Control)
                 pos = new Vector2Int(Mathf.RoundToInt(pos.x / 50f) * 50, Mathf.RoundToInt(pos.y / 50f) * 50);
             hoveringNode.SetPosition(pos); // Set the position of the node, taking into account the relative position clicked on the node
+            hoveringNode.UpdateConnectors(); // Update the nodes connectors positions
             Event.current.Use();
         }
 
@@ -89,7 +115,7 @@ public class Graph
             {
                 if (nodes[i].Rect.Contains(Event.current.mousePosition))
                 {
-                    nodes.RemoveAt(i);
+                    DeleteNode(nodes[i]);
                     deletedNode = true;
                     Event.current.Use();
                     break;
@@ -105,5 +131,19 @@ public class Graph
                 Event.current.Use();
             }
         }
+    }
+
+    // Delete a node and remove it from the graph
+    public void DeleteNode(GraphNode node)
+    {
+        node.Delete();
+        nodes.Remove(node);
+    }
+
+    // Brings a node to the front of the render by removing and reinserting it at position 0
+    public void BringNodeForward(GraphNode node)
+    {
+        nodes.Remove(node);
+        nodes.Insert(0, node);
     }
 }
