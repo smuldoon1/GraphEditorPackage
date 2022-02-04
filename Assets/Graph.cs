@@ -23,10 +23,14 @@ public class Graph
     }
 
     // Create a new node in the graph
-    public void CreateNode(float x, float y, float width, float height, int inputCount = 1, int outputCount = 1)
+    public void CreateNode(Vector2 position)
     {
-        GraphNode newNode = new TestNode(new Rect(x, y, width, height), inputCount, outputCount);
-        nodes.Insert(0, newNode); // New nodes are brought to the front of the list
+        float width = 300f;
+        float height = 200f;
+        int inputs = 2;
+        int outputs = 3;
+        GraphNode node = new TestNode(new Rect(position.x - width * .5f, position.y - height * .5f, width, height), inputs, outputs);
+        nodes.Insert(0, node); // New nodes are brought to the front of the list
     }
 
     // Render the graph window, nodes most recently interacted with are drawn on top
@@ -127,7 +131,8 @@ public class Graph
                 // If control is held, newly created nodes will be aligned to a grid
                 if (Event.current.modifiers == EventModifiers.Control)
                     pos = new Vector2Int(Mathf.RoundToInt(pos.x / 50f) * 50, Mathf.RoundToInt(pos.y / 50f) * 50);
-                CreateNode(pos.x - 50f, pos.y - 50f, 100f, 100f);
+                //CreateNode(pos.x - 50f, pos.y - 50f, 100f, 100f);
+                CreateNode(pos);
                 Event.current.Use();
             }
         }

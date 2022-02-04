@@ -7,7 +7,6 @@ public abstract class GraphNode
 {
     Rect rect;
     public RectOffset border;
-    public GUIContent content;
 
     public List<InputConnector> inputConnectors; // Drag connections onto input connectors to connect to an output
     public List<OutputConnector> outputConnectors; // Drag connections from output connectors to connect to an input
@@ -18,10 +17,14 @@ public abstract class GraphNode
         set { rect = value; }
     }
 
+    public Rect ContentRect
+    {
+        get { return new Rect(rect.x + border.left, rect.y + border.top, rect.width - border.right * 2, rect.height - border.bottom * 2); }
+    }
+
     public GraphNode(Rect rect, int inputCount, int outputCount)
     {
         this.rect = rect;
-        content = new GUIContent();
 
         inputConnectors = new List<InputConnector>();
         outputConnectors = new List<OutputConnector>();
@@ -46,12 +49,12 @@ public abstract class GraphNode
         {
             outputConnectors[i].Draw();
         }
-        GUI.BeginGroup(Rect);
-        DrawContent();
+        GUI.BeginGroup(ContentRect);
+        OnNodeGUI();
         GUI.EndGroup();
     }
 
-    public abstract void DrawContent();
+    public abstract void OnNodeGUI();
 
     // Update the rects of all connectors
     public void UpdateConnectors()
