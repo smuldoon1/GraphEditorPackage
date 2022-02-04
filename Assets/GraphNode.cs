@@ -6,7 +6,8 @@ using UnityEditor;
 public abstract class GraphNode
 {
     Rect rect;
-    protected Color color;
+    public RectOffset border;
+    public GUIContent content;
 
     public List<InputConnector> inputConnectors; // Drag connections onto input connectors to connect to an output
     public List<OutputConnector> outputConnectors; // Drag connections from output connectors to connect to an input
@@ -20,6 +21,7 @@ public abstract class GraphNode
     public GraphNode(Rect rect, int inputCount, int outputCount)
     {
         this.rect = rect;
+        content = new GUIContent();
 
         inputConnectors = new List<InputConnector>();
         outputConnectors = new List<OutputConnector>();
@@ -35,7 +37,7 @@ public abstract class GraphNode
     // Draw the graph node
     public void Draw()
     {
-        EditorGUI.DrawRect(rect, color);
+        GUI.Box(Rect, "");
         for (int i = 0; i < inputConnectors.Count; i++)
         {
             inputConnectors[i].Draw();
@@ -44,7 +46,12 @@ public abstract class GraphNode
         {
             outputConnectors[i].Draw();
         }
+        GUI.BeginGroup(Rect);
+        DrawContent();
+        GUI.EndGroup();
     }
+
+    public abstract void DrawContent();
 
     // Update the rects of all connectors
     public void UpdateConnectors()
